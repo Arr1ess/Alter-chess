@@ -1,0 +1,39 @@
+.chessboard {
+	flex-wrap: wrap;
+	position: relative;
+	box-sizing: content-box;
+	margin: auto;
+	display: flex;
+}
+
+.light-cell {
+	background-color: #f0d9b5;
+}
+
+.dark-cell {
+	background-color: #b58863;
+}
+
+.field {
+	box-sizing: border-box;
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 5px;
+}
+
+.field img {
+	max-width: 100%;
+	max-height: 100%;
+	margin: auto;
+	/* Чтобы изображение оставалось по центру ячейки */
+}
+
+.active {
+	border: blue solid 4px;
+}
+
+.ready {
+	border: rgb(255, 0, 0) solid 4px;
+}

@@ -1,0 +1,44 @@
+@font-face {
+	font-family: "Xenotron";
+	src: url("../styles/clock.ttf") format("truetype");
+	font-weight: normal;
+	font-style: normal;
+}
+
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	background-color: rgb(81, 83, 83);
+}
+.wrapper {
+	width: 100%;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.wrapper > h1 {
+	padding: 20px;
+	font-size: 30px;
+	color: white;
+	font-family: "Xenotron", sans-serif;
+}
+.games {
+	padding: 20px;
+	width: 100%;
+	min-height: 100vh;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 20px;
+	/* grid-auto-flow: dense; */
+	justify-content: center;
+	align-items: center;
+	margin: 0 auto;
+}
