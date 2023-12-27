@@ -9,16 +9,16 @@ use Ratchet\Http\HttpServer;
 
 class ChessRoom
 {
-    public $participants; // Список всех участников
-    public $whitePlayer; // Игрок за белых
-    public $blackPlayer; // Игрок за черных
-    public $currentPosition; // Текущая позиция в строковом формате
-    public $moveList; // Список ходов в строковом формате
-    public $remainingTimeWhite; // Оставшееся время белых в секундах
-    public $remainingTimeBlack; // Оставшееся время черных в секундах
-
+    public $participants;
+    public $whitePlayer;
+    public $blackPlayer;
+    public $currentPosition;
+    public $moveList;
+    public $remainingTimeWhite;
+    public $remainingTimeBlack;
     public $roomId;
-    public function __construct($roomId)
+    public $gameType;
+    public function __construct($roomId, $gameType)
     {
         $this->participants = new \SplObjectStorage();
         $this->whitePlayer = null;
@@ -28,8 +28,8 @@ class ChessRoom
         $this->remainingTimeWhite = 0;
         $this->remainingTimeBlack = 0;
         $this->roomId = $roomId;
+        $this->gameType = $gameType;
     }
-
     public function getInformationAsString()
     {
         ob_start();
@@ -42,54 +42,55 @@ class ChessRoom
 class MyWebSocketServer implements MessageComponentInterface
 {
     protected $clients;
-    protected $rooms; // Словарь для хранения комнат и их участников 
+    protected $rooms;
 
     public function __construct()
     {
         $this->clients = new \SplObjectStorage;
         $this->rooms = [];
+        echo "Server was start\n";
     }
 
     public function onOpen(ConnectionInterface $conn)
     {
         $this->clients->attach($conn);
         $conn->roomId = null; // Идентификатор текущей комнаты
-        echo "New connection! ({$conn->resourceId})\n";
+        // echo "New connection! ({$conn->resourceId})\n";
     }
-
-    
-
     public function onMessage(ConnectionInterface $from, $msg)
     {
         $message = json_decode($msg, true);
         if (isset($message['type'])) {
             $type = $message['type'];
+
             if (isset($message['roomId'])) {
                 $roomId = $message['roomId'];
-                $room = array_key_exists($roomId, $this->rooms) ? $this->rooms[$roomId] : new ChessRoom($roomId);
+                if ($type == "findRoom") {
+                    $answer = array(
+                        'type' => "isFindRoom",
+                        'roomIsFind' => array_key_exists($roomId, $this->rooms)
+                    );
+                    $from->send($answer);
+                }
+                // echo "find = " . array_key_exists($roomId, $this->rooms) . "\n";
+                $room = array_key_exists($roomId, $this->rooms) ? $this->rooms[$roomId] : new ChessRoom($roomId, $message['gameType']);
                 switch ($type) {
                     case "newRoom":
                         if (!isset($room))
-                            $room = new ChessRoom($roomId);
+                            $room = new ChessRoom($roomId, $message['gameType']);
                         break;
                     case "addUser":
                         if (!$room->participants->contains($from)) {
                             $room->participants->attach($from);
                             echo "user is add\n";
-                            
-                            if (!isset($room->whitePlayer))
-                                $room->whitePlayer = $message['user'];
-                            else if (!isset($room->blackPlayer))
-                                $room->blackPlayer = $message['user'];
+                            $playerRole = isset($message['playerRole']) ? $message['playerRole'] : 'viewer';
+                            if ($playerRole == "whitePlayer") {
+                                $room->whitePlayer = $message['userId'];
+                            } else if ($playerRole == "blackPlayer") {
+                                $room->blackPlayer = $message['userId'];
+                            }
                         }
-                        // echo "send all users in" . $room -> getInformationAsString() . "\n";
-                        if ($room->whitePlayer === $message['user'])
-                            $this->getRole($from, 'white');
-                        else if ($room->blackPlayer === $message['user'])
-                            $this->getRole($from, 'black');
-                        else
-                            $this->getRole($from, 'viewer');
-
+                        echo "user is add as " . $playerRole . " in game " . $room->roomId . "\n";
                         break;
                     case "closeRoom":
                         $this->closeRoom($roomId);
@@ -98,28 +99,40 @@ class MyWebSocketServer implements MessageComponentInterface
                         if (isset($message['board'])) {
                             $room->currentPosition = $message['board'];
                         }
-                        $message = array(
+                        $answer = array(
                             'type' => 'setPosition',
-                            'board' => $room -> currentPosition,
+                            'board' => $room->currentPosition,
                         );
-                        $this->sendAllUsers($message, $room);
-                        echo "position is set\n" . $room -> roomId . "\n";
+                        $this->sendAllUsers($answer, $room);
                         break;
-                    case "countdownUpdate":
-                        $this->sendAllUsers($msg, $room);
+                    case "setTurnMove":
+                        $answer = array(
+                            'type' => 'setTurnMove',
+                            'turnMove' => $message['turnMove'],
+                        );
+                        $this->sendAllUsers($answer, $room);
+                        break;
+                    case "setTime":
+                        if (isset($message['whiteTime'])) {
+                            $room->remainingTimeWhite = $message['whiteTime'];
+                        }
+                        if (isset($message['blackTime'])) {
+                            $room->remainingTimeBlack = $message['blackTime'];
+                        }
+                        $answer = array(
+                            'type' => 'setTime',
+                            'whiteTime' => $room->remainingTimeWhite,
+                            'blackTime' => $room->remainingTimeBlack
+                        );
+                        $this->sendAllUsers($answer, $room);
                         break;
                     default:
                         echo "Command is not definded\n";
                 }
             } else {
-                echo "roomId is not definded";
+                echo "roomId is not definded\n" . $msg . "\n";
             }
         }
-    }
-
-    public function getPosition($roomId)
-    {
-        return isset($this->rooms[$roomId]->currentPosition) ? $this->rooms[$roomId]->currentPosition : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
     }
 
     public function getRole($from, $role)
@@ -132,9 +145,8 @@ class MyWebSocketServer implements MessageComponentInterface
     }
 
     public function sendAllUsers($data, $room)
-    {   
-        // echo "send all users in" . $room -> getInformationAsString() . "\n";
-        foreach ($room -> participants as $client) {
+    {
+        foreach ($room->participants as $client) {
             $client->send(json_encode($data));
         }
     }
