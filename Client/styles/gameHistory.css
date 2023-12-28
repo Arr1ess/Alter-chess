@@ -1,5 +1,6 @@
+/* for work chessboard  */
+/* for work chessboard  */
 
-/* for work chessboard*/
 .chessboard 
 {
 	flex-wrap: wrap;
@@ -11,6 +12,13 @@
 	aspect-ratio: 1/1;
 	border-radius: 12px;
 	border: 4px solid rgb(81, 83, 83);
+}
+
+@media (max-width:1100px) {
+    .chessboard
+    {
+        max-height: 65vh;
+    }
 }
 
 
@@ -39,7 +47,9 @@
 	/* Чтобы изображение оставалось по центру ячейки */
 }
 
-/*all */
+/*          all         */
+/*          all         */
+
 .wrapper {
 	width: 100%;
 	min-height: 100vh;
@@ -47,14 +57,23 @@
 	flex-direction: column;
 }
 
+
 .container
 {
     width: 100%;
     max-width: 1100px;
     margin: 0 auto;
 }
+@media (max-width:1100px) 
+{
+    .container
+    {
+    }
+}
 
-/* conent_main */
+/*             conent_main         */
+/*             conent_main         */
+
 .content_main
 {
     width: 100%;
@@ -62,31 +81,65 @@
     flex-direction: row;
     flex-wrap: wrap;
 }
+@media (max-width:1100px)
+{
+    .content_main
+    {
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+        flex-wrap: wrap;
+    }
+}
+
 
 main{
     height: 100vh;
     width: 100%;
 }
 
-/* chessfield */
+/*      chessfield      */
+/*      chessfield      */
 
 .chessfield
 {
     align-items: flex-start;
     display: flex;
-    flex: 6;
+    flex: 10;
     justify-content: start;
     align-items: center;
     height: 100%;
 }
+@media (max-width:1100px)
+{
+    .chessfield
+    {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        flex: 4;
+    }
+}
+
 .history_move
 {
     align-items: flex-start;
     display: flex;
     justify-content: end;
     align-items: center;
-    flex: 4;
+    flex: 6;
     overflow: hidden;
+}
+@media (max-width:1100px)
+{
+    .history_move
+    {
+        justify-content: center;
+        width: 100%;
+        height: 35%;
+        
+    }
 }
 
 .tabble_history_move
@@ -102,7 +155,6 @@ main{
     box-shadow: 4px 4px 8px rgba(17, 25, 40, 0.25); 
     
 }
-
 
 .moves_figures
 {
@@ -137,7 +189,8 @@ main{
     width: 50%;
 }
 
-/* text */
+/*      text        */
+/*      text        */
 
 .title_history
 {
@@ -179,7 +232,8 @@ main{
     height:none;
 }
 
-/* form */
+/*      form        */
+/*      form        */
 
 .btn
 {
@@ -194,7 +248,6 @@ main{
     transition: color 0.3s ease;
     transition: background-color 0.3s ease;
 }
-
 .btn:hover
 {
     color: white;
@@ -204,7 +257,6 @@ main{
     transition: color 0.3s ease;
     transition: background-color 0.3s ease;
 }
-
 .form {
     width: 100%;
     margin-top: 25px;
@@ -216,7 +268,6 @@ main{
     justify-content: start;
     
 }
-
 .section_from
 {
 }
@@ -236,7 +287,8 @@ input[type="file"]::file-selector-button {
     padding: 10px; /* внутренний отступ кнопки */
   }
 
-/* move */
+/*      move        */
+/*      move        */
 
 .moves
 {
@@ -251,3 +303,5 @@ input[type="file"]::file-selector-button {
     flex-direction: column;
     align-items: start;
 }
+
+
