@@ -1,1 +1,0 @@
-<? $wsPort = "ws://localhost:8080";?>
