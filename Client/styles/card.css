@@ -1,13 +1,12 @@
 .card {
-	
-	max-width: 320px;
-	margin-bottom: 15px;
+	max-width: 300px;
 	height: 500px;
+	margin: 0 auto;
 	backdrop-filter: blur(16px) saturate(180%);
 	-webkit-backdrop-filter: blur(16px) saturate(180%);
 	background-color: rgba(17, 25, 40, 0.25);
 	border-radius: 12px;
-	border: 3px solid #4CAF50;
+	border: 3px solid rgba(0, 212, 255, 0.6);
 	padding: 0 38px;
 	filter: drop-shadow(0 30px 10px rgba(0, 0, 0, 0.125));
 	display: flex;
@@ -55,16 +54,16 @@
 	border: none;
 	padding: 12px 24px;
 	border-radius: 24px;
-	font-size: 16px;
+	font-size: 12px;
+	font-size: 0.8rem;
 	letter-spacing: 2px;
 	cursor: pointer;
-	text-decoration: none;
 }
 
 .outline {
 	background: transparent;
-	color: #4CAF50;
-	border: 1px solid #4CAF50;
+	color: rgba(0, 212, 255, 0.9);
+	border: 1px solid rgba(0, 212, 255, 0.6);
 	transition: all 0.3s ease;
 }
 

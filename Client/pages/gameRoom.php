@@ -5,8 +5,8 @@
     <title>Партия</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../styles/index.css">
     <link rel="stylesheet" href="../styles/gameRoom.css">
+    <link rel="stylesheet" href="../styles/index.css">
 
 </head>
 
@@ -60,38 +60,32 @@ if (empty($_SESSION[$gameId])) {
             z-index: 9999;
         }
 
-    .form-container 
-    {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        max-width: 360px;
-        background: #FFFFFF;
-        z-index: 1;
-        padding: 45px;
-        border-radius: 5px;
-        text-align: center;
-        box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
-    }
+        .form-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
     </style>
     <!-- <main class="wrapper"> -->
     <?php if (empty($_SESSION[$gameId])): ?>
         <div class="overlay" id="overlay">
             <div class="form-container">
-                <div class="form">
-                    <h2>Введите ваше имя и выберите роль</h2>
-                        <form method="post">
-                            <input class="input_from" type="text" name="userName" placeholder="Гость" value=<?= empty($_SESSION['userName']) ? "" : $_SESSION['userName'] ?>>
-                            <select class="select_form" name="userRole">
-                                <option value="whitePlayer">Белые</option>
-                                <option value="blackPlayer">Черные</option>
-                                <option value="viewer" selected>Зритель</option>
-                            </select>
-                            <button class = "button_form" type="submit">Сохранить имя и роль</button>
-                        </form>
-                </div>
-            </div>    
+                <h2>Введите ваше имя и выберите роль</h2>
+                <form method="post">
+                    <input type="text" name="userName" placeholder="Гость" value=<?= empty($_SESSION['userName']) ? "" : $_SESSION['userName'] ?>>
+                    <select name="userRole">
+                        <option value="whitePlayer">Белые</option>
+                        <option value="blackPlayer">Черные</option>
+                        <option value="viewer" selected>Зритель</option>
+                    </select>
+                    <button type="submit">Сохранить имя и роль</button>
+                </form>
+            </div>
         </div>
     <?php endif; ?>
     <main>
@@ -113,7 +107,7 @@ if (empty($_SESSION[$gameId])) {
                 max-height: 80vh;
                 aspect-ratio: 1/1;
                 border-radius: 12px;
-                border: 6px solid rgb(81, 83, 83);;
+                border: 6px solid black;
                 /* filter: drop-shadow(10px 100px 100px rgba(0, 0, 0, 0.125)); */
             }
 
@@ -124,7 +118,7 @@ if (empty($_SESSION[$gameId])) {
                 align-items: center;
                 justify-content: space-around;
                 font-size: 30px;
-                color: #4CAF50;
+                color: white;
                 font-family: 'Xenotron', sans-serif;
             }
         </style>
