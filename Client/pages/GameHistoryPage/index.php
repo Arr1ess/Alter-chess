@@ -5,90 +5,89 @@
 ?>
 
 
-<!-- data = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; -->
 <!-- function -->
 <?php 
 
-function fen_to_array($old_position)
-{
-	$chessboard_array = [];
-
-	$pos = 0;
-
-	for ($i = 0; $i < mb_strlen($old_position);$i++)
+	function fen_to_array($old_position)
 	{
-		if($old_position[$i] == '/')
-		{
-			continue;
-		}
+		$chessboard_array = [];
 
-		if (is_numeric($old_position[$i]))
+		$pos = 0;
+
+		for ($i = 0; $i < mb_strlen($old_position);$i++)
 		{
-			for ($j = 0; $j < intval($old_position[$i]); $j++)
+			if($old_position[$i] == '/')
 			{
-				$chessboard_array[$pos++] = 1;
+				continue;
+			}
+
+			if (is_numeric($old_position[$i]))
+			{
+				for ($j = 0; $j < intval($old_position[$i]); $j++)
+				{
+					$chessboard_array[$pos++] = 1;
+				}
+			}
+			else
+			{
+				$chessboard_array[$pos++] = $old_position[$i];
 			}
 		}
-		else
-		{
-			$chessboard_array[$pos++] = $old_position[$i];
-		}
+
+		return $chessboard_array;
 	}
-
-	return $chessboard_array;
-}
-function array_to_fen($array)
-{
-	$fen = "";
-
-	$int_val = 0;
-
-	for ($i = 0; $i< 64; $i++)
+	function array_to_fen($array)
 	{
-		if($i != 0 && $i % 8 == 0)
+		$fen = "";
+
+		$int_val = 0;
+
+		for ($i = 0; $i< 64; $i++)
 		{
-			if ($int_val != 0)
+			if($i != 0 && $i % 8 == 0)
 			{
-				$fen .= $int_val;
-				$int_val =0;
+				if ($int_val != 0)
+				{
+					$fen .= $int_val;
+					$int_val =0;
+				}
+				$fen .= '/';
 			}
-			$fen .= '/';
+
+			if (is_numeric($array[$i]))
+			{
+				$int_val++;
+			}
+			else
+			{
+				if ($int_val != 0)
+				{
+					$fen .= $int_val;
+					$int_val = 0;
+				}
+				$fen .= $array[$i];
+			}
+
 		}
 
-		if (is_numeric($array[$i]))
-		{
-			$int_val++;
-		}
-		else
-		{
-			if ($int_val != 0)
-			{
-				$fen .= $int_val;
-				$int_val = 0;
-			}
-			$fen .= $array[$i];
-		}
-
+		return $fen;
 	}
+	function move_to_fen($move_from, $move_to, $old_position)
+	{
+		$chess_board_array = fen_to_array($old_position);	
 
-	return $fen;
-}
-function move_to_fen($move_from, $move_to, $old_position)
-{
-	$chess_board_array = fen_to_array($old_position);	
+		$temp_figures = $chess_board_array[intval($move_from)];
 
-	$temp_figures = $chess_board_array[intval($move_from)];
+		$chess_board_array[intval($move_from)] = $chess_board_array[intval($move_to)];
 
-	$chess_board_array[intval($move_from)] = $chess_board_array[intval($move_to)];
+		$chess_board_array[intval($move_to)] = $temp_figures;
 
-	$chess_board_array[intval($move_to)] = $temp_figures;
+		$fen = array_to_fen($chess_board_array);
 
-	$fen = array_to_fen($chess_board_array);
+		return $fen;
 
-	return $fen;
-
-	
-}
+		
+	}
 
 ?>
 
@@ -97,6 +96,10 @@ function move_to_fen($move_from, $move_to, $old_position)
 	//logics page (из-за еблана будет логика внутри страницы)
 	
 	session_start();
+
+	$array_fen_parse = [];
+	$array_fen_parse[0] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+
 
 	$error = [];
 
@@ -109,11 +112,7 @@ function move_to_fen($move_from, $move_to, $old_position)
 			
 			$array_moves_non_parse = explode("\n", $_SESSION['file_content']);
 
-			$array_moves_parse = [];
-			$array_fen_parse = [];
-
-			$array_fen_parse[0] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
- 
+			$array_moves_parse = []; 
 			for($i = 0; $i  < count($array_moves_non_parse); $i++)
 			{
 				$tokens = explode('->', $array_moves_non_parse[$i]);
@@ -209,6 +208,7 @@ function move_to_fen($move_from, $move_to, $old_position)
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="index.css">
 	<link rel="stylesheet" href="gameHistory.css">
+	<meta http-equiv="pragma" content="no-cache" />
 	<title>Alter-chess.ru</title>
 </head>
 
@@ -231,9 +231,9 @@ function move_to_fen($move_from, $move_to, $old_position)
 									<?php if (isset($array_moves_parse)):?>
 										<?php foreach($array_moves_parse as $move):?>
 											<?php if($i % 2 == 0 ):?>
-												<div class  = "moves white" onclick="current_pos_game(<?php echo ($i + 1);?>)" ><p class = "number_move"><?php echo ($i++ + 1) . '. '; ?></p><?php echo ($move);?></div>
+												<div class  = "moves white" id = "<?php echo 'move_id_' . ($i + 1); ?>" onclick="current_pos_game(<?php echo ($i + 1);?>)" ><p class = "number_move"><?php echo ($i++ + 1) . '. '; ?></p><?php echo ($move);?></div>
 											<?php else:?>
-												<div class  = "moves black" onclick="current_pos_game(<?php echo ($i + 1);?>)" ><p class = "number_move"><?php echo ($i++ + 1) . '.'; ?></p><?php echo ($move);?></div>
+												<div class  = "moves black" id = "<?php echo 'move_id_' . ($i + 1); ?>" onclick="current_pos_game(<?php echo ($i + 1);?>)" ><p class = "number_move"><?php echo ($i++ + 1) . '.'; ?></p><?php echo ($move);?></div>
 											<?php endif;?>
 										<?php endforeach; ?>
 									<?php endif;?>
@@ -249,7 +249,7 @@ function move_to_fen($move_from, $move_to, $old_position)
 				</div>
 		</div>
 			<div class="form">
-				<form action = "gameHistory.php" enctype="multipart/form-data" method="post">
+				<form action = "index.php" enctype="multipart/form-data" method="post">
 					<div class="section_from">
 						<label for="file_input" class="subtitle_page st_p_new" >Загрузить игру</label>
 						<div class="section_form_file">
@@ -272,13 +272,71 @@ function move_to_fen($move_from, $move_to, $old_position)
 
 <!--client logics -->
 <script>
-	
-	var pos_game = 0;
-	var array_moves = <?php echo json_encode($array_fen_parse)?>;
 
-	//debug
-	console.log(array_moves);
-    createChessboard(array_moves[0]);
+	
+	window.onload = function() 
+	{
+		if (window.screen.width >= 1100)
+	{
+		var element1 = document.getElementsByClassName('chessboard')[0];
+		var element2 = document.getElementsByClassName('tabble_history_move')[0];
+		var element1Height = element1.clientHeight;
+		var element1Width = element1.clientWidth;
+		element2.style.height = element1Height + 'px';
+	}
+	else
+	{
+		var element3 = document.getElementsByClassName("title_history")[0].clientHeight;
+		var element1 = document.getElementsByClassName('chessboard')[0];
+		var element2 = document.getElementsByClassName('tabble_history_move')[0];
+
+		var screen_width = window.screen.height;
+
+		var element1Height = element1.clientHeight;
+		var element1Width = element1.clientWidth;
+
+		element2.style.height = (screen_width - element3 - element1Height - 30) + 'px';
+	}
+
+	}
+
+	window.addEventListener("resize",function(event)
+	{
+		if (window.screen.width >= 1100)
+	{
+		var element1 = document.getElementsByClassName('chessboard')[0];
+		var element2 = document.getElementsByClassName('tabble_history_move')[0];
+		var element1Height = element1.clientHeight;
+		var element1Width = element1.clientWidth;
+		element2.style.height = element1Height + 'px';
+	}
+	else
+	{
+		var element3 = document.getElementsByClassName("title_history")[0].clientHeight;
+		var element1 = document.getElementsByClassName('chessboard')[0];
+		var element2 = document.getElementsByClassName('tabble_history_move')[0];
+
+		var screen_width = window.screen.height;
+
+		var element1Height = element1.clientHeight;
+		var element1Width = element1.clientWidth;
+
+		element2.style.height = (screen_width - element3 - element1Height - 30) + 'px';
+	}
+	},
+	true
+	);
+	
+
+	var pos_game = 0;
+
+	<?php if (!empty($array_fen_parse)):?>
+	var array_moves = <?php echo json_encode($array_fen_parse)?>;
+	<?php else:?>
+	var array_moves = null;
+	<?php endif;?>
+
+	createChessboard(array_moves[0]);
 
 
 </script>
@@ -288,6 +346,16 @@ function move_to_fen($move_from, $move_to, $old_position)
 
 	function current_pos_game(id)
 	{
+		if (pos_game != 0 || pos_game > array_moves.length - 1)
+		{
+			document.getElementById("move_id_"+(pos_game)).style.color = "#ffffff";
+			document.getElementById("move_id_"+ (pos_game)).style.backgroundColor = "transparent";
+		}
+		
+	
+		document.getElementById("move_id_"+ (id)).style.backgroundColor = "#4CAF50";
+		document.getElementById("move_id_" + (id)).style.color = "#000000";
+		
 		pos_game = id;
 
 		if(pos_game > 0 && pos_game <= array_moves.length - 1)
@@ -302,7 +370,21 @@ function move_to_fen($move_from, $move_to, $old_position)
 		{
 			return;
 		}
+		if (pos_game != 0 || pos_game > array_moves.length - 1)
+		{
+			document.getElementById("move_id_"+ (pos_game)).style.backgroundColor = "transparent";
+			document.getElementById("move_id_"+(pos_game)).style.color = "#ffffff";
+		}
+
 		pos_game--;
+
+		if (pos_game != 0)
+		{
+			document.getElementById("move_id_"+ (pos_game)).style.backgroundColor = "#4CAF50";
+			document.getElementById("move_id_" + (pos_game)).style.color = "#000000";
+		}
+		
+
 
 		createChessboard(array_moves[pos_game]);
 	}
@@ -311,7 +393,20 @@ function move_to_fen($move_from, $move_to, $old_position)
 	{
 		if (pos_game < (array_moves.length - 1)) 
 		{
+			if (pos_game != 0 || pos_game > array_moves.length - 1)
+			{
+				document.getElementById("move_id_"+ (pos_game)).style.backgroundColor = "transparent";	
+				document.getElementById("move_id_"+(pos_game)).style.color = "#ffffff";
+			}
+
 			pos_game += 1;
+
+			if (pos_game < array_moves.length)
+			{
+				document.getElementById("move_id_" + (pos_game)).style.color = "#000000";
+				document.getElementById("move_id_"+ (pos_game)).style.backgroundColor = "#4CAF50";
+			}
+		
 			createChessboard(array_moves[pos_game]);
 		}
 	}

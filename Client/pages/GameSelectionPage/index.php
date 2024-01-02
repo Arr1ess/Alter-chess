@@ -40,8 +40,23 @@
 									class="create-btn btn outline">Создать игру</a></div>
 						</div>
 					</div>
-				<?php endforeach; ?>
+				<?php endforeach; ?>			
+				<div class="section_card">
+						<div class="card history">
+							<h2>
+								Просмотреть игру
+							</h2>
+							<img class="banner-image"  src="<?php echo ($imagePath); ?>" alt="<?php echo ($gameName); ?>">
+							<p>
+								разобрать партию
+							</p>
+							<div class="button-wrapper"><a href="../GameHistoryPage/index.php"
+									class="create-btn btn outline">Загрузить игру</a></div>
+						</div>
+					</div>
 			</section>
+			</div>
+
 		</div>
 	</main>
 </body>

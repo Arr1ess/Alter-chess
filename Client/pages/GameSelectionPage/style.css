@@ -129,6 +129,11 @@ body {
 }/*# sourceMappingURL=style.css.map */
 
 
+.history
+{
+  border: 3px solid #4CAF50;
+}
+
 /* 680 px */
 
 @media (max-width:680px)
